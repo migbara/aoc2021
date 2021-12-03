@@ -1,28 +1,11 @@
 <?php
 
 //AOC - Day 1
-//php.exe -c "c:\php8.1.0\php.ini" "C:\....\aoc_2021\2\calculate.php"
-
-//input data
-$url = "https://adventofcode.com/2021/day/1/input";
+//php.exe -c "c:\php8.1.0\php.ini" "C:\....\aoc_2021\1\calculate.php"
 
 //1 - Read from a file
-$file = "C:\\Miguel Barahona\\Personal\\aoc_2021\\1\\input.txt";
+$file = dirname($_SERVER["SCRIPT_FILENAME"])."\\input.txt";
 $f = fopen($file,"r");
-
-//2 - Read from remote url
-//$f = file_get_contents($url);
-
-//enable these sentences in php.ini
-//  extension_dir = ext
-//  extension=openssl
-
-//This is a helpful code for checking wrappers and openssl extension
-$w = stream_get_wrappers();
-echo 'openssl: ',  extension_loaded  ('openssl') ? 'yes':'no', "\n";
-echo 'http wrapper: ', in_array('http', $w) ? 'yes':'no', "\n";
-echo 'https wrapper: ', in_array('https', $w) ? 'yes':'no', "\n";
-echo 'wrappers: ', var_dump($w);
 
 $ant = '';
 $ant2 = '';
@@ -62,11 +45,11 @@ while(!feof($f)){ // FOR TEST && $counter<10){
             $sum_act = $n + $ant + $ant2;
 
 
-            echo "act : ".$n." - ";
-            echo "prev: ".$ant." - ";
-            echo "prev2: ".$ant2."\r\n";
-            echo "SUM ACT : ".$sum_act." - ";
-            echo "SUM PREV: ".$sum_prev."\r\n";
+            // echo "act : ".$n." - ";
+            // echo "prev: ".$ant." - ";
+            // echo "prev2: ".$ant2."\r\n";
+            // echo "SUM ACT : ".$sum_act." - ";
+            // echo "SUM PREV: ".$sum_prev."\r\n";
 
             if($sum_prev>0){
                 if($sum_act > $sum_prev){
@@ -86,11 +69,14 @@ while(!feof($f)){ // FOR TEST && $counter<10){
     $ant2 = $ant;
     $ant = $n;
 }
-
+echo "PART 1"."\r\n";
+echo "---------------------------------------"."\r\n";
 echo "TOTAL INCREASED ".$cont_increased."\r\n";
 echo "TOTAL DECREASED ".$cont_decreased."\r\n";
-echo "TOTAL EQUALS ".$cont_equals."\r\n";
+echo "TOTAL EQUALS ".$cont_equals."\r\n"."\r\n";
+echo "PART 2"."\r\n";
+echo "---------------------------------------"."\r\n";
 echo "TOTAL INCREASED GROUP ".$cont_increased_group."\r\n";
 echo "TOTAL DECREASED GROUP ".$cont_decreased_group."\r\n";
-echo "TOTAL EQUALS GROUP ".$cont_equals_group."\r\n";
+echo "TOTAL EQUALS GROUP ".$cont_equals_group."\r\n"."\r\n";
 
