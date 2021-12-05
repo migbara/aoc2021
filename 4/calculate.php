@@ -1,6 +1,6 @@
 <?php
 
-//AOC - Day 3
+//AOC - Day 4
 //php.exe -c "c:\php8.1.0\php.ini" "C:\....\aoc_2021\4\calculate.php"
 
 $numbers = array();
