@@ -5,8 +5,10 @@
 
 $vectors = array();
 $map = array();
+$maxx = 0;
+$maxy = 0;
 
-function getData(&$vectors,&$map){
+function getData(&$vectors,&$map,&$maxx,&$maxy){
     //1 - Read from a file
     $file = dirname($_SERVER["SCRIPT_FILENAME"])."\\input.txt";
     $f = fopen($file,"r");
@@ -103,7 +105,7 @@ function addMap($vector,&$map){
     }
 }
 
-function drawMap($map){
+function drawMapTextFile($map){
     $cad = '';
     for ($i=0; $i < count($map); $i++) { 
         for ($j=0; $j < count($map[$i]); $j++) { 
@@ -120,6 +122,40 @@ function drawMap($map){
     $f = fopen($file,"w");
     fputs($f,$cad);
     fclose($f);
+}
+
+function drawMapImageFile($map,$maxx,$maxy){
+    $hor_size = $maxx;
+    $ver_size = $maxy;
+    
+    $gd = imagecreatetruecolor($hor_size, $ver_size);
+
+    $first = imagecolorallocate($gd, 88, 24, 69);
+    $second = imagecolorallocate($gd, 114, 12, 63);
+    $third = imagecolorallocate($gd, 199, 0, 57);
+    $fourth = imagecolorallocate($gd, 255, 87, 51);
+    $fifth = imagecolorallocate($gd, 255, 195, 0);
+    $sixth = imagecolorallocate($gd, 218, 247, 166);
+
+    $colors = array($first,$second,$third,$fourth,$fifth,$sixth);
+
+    $x = 0;
+    $y = 0;
+    $max = 0;
+    for ($y=0; $y < count($map); $y++) { 
+        for ($x=0; $x < count($map[$y]); $x++) { 
+            if($map[$y][$x] > 0){
+                if($map[$y][$x] > $max)
+                    $max = $map[$y][$x];
+                imagesetpixel($gd, $x, $y, $colors[($map[$y][$x] - 1)]);
+            }
+        }
+    }
+    //echo "MAX VECTOR CONCURRENCE ".$max."\r\n";
+    
+    $file = dirname($_SERVER["SCRIPT_FILENAME"])."\\output.png";
+    imagepng($gd,$file);
+    
 }
 
 function putVectors_part1($vectors,&$map){
@@ -152,7 +188,7 @@ function countVectors($map,$n){
 
 function calculate_part1($vectors,$map){
     putVectors_part1($vectors,$map);
-    drawMap($map);
+    drawMapTextFile($map);
     //we need know how many points have 2 vectors or more
     $counter = countVectors($map,2);
     echo "PART 1"."\r\n";
@@ -160,9 +196,9 @@ function calculate_part1($vectors,$map){
     echo "NUMBERS COUNTER: ".$counter."\r\n";
 }
 
-function calculate_part2($vectors,$map){
+function calculate_part2($vectors,&$map){
     putVectors_part2($vectors,$map);
-    drawMap($map);
+    drawMapTextFile($map);
     //we need know how many points have 2 vectors or more
     $counter = countVectors($map,2);
     echo "PART 2"."\r\n";
@@ -171,7 +207,7 @@ function calculate_part2($vectors,$map){
 }
 
 
-getData($vectors,$map);
+getData($vectors,$map,$maxx,$maxy);
 // $vectors = array();
 // $vectors["0"] = array("p1"=>array("x"=>"0","y"=>"0"),"p2"=>array("x"=>"8","y"=>"8"));
 // $vectors["1"] = array("p1"=>array("x"=>"5","y"=>"5"),"p2"=>array("x"=>"8","y"=>"2"));
@@ -180,6 +216,8 @@ getData($vectors,$map);
 
 calculate_part1($vectors,$map);
 calculate_part2($vectors,$map);
+
+drawMapImageFile($map,$maxx,$maxy);// It's cool view all info in an image
 
 // print_r($vectors);
 // print_r($map);
