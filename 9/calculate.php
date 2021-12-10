@@ -5,7 +5,7 @@
 
 function getData(){
     //1 - Read from a file
-    $file = dirname($_SERVER["SCRIPT_FILENAME"])."\\input.txt";
+    $file = dirname($_SERVER["SCRIPT_FILENAME"])."\\input2.txt";
     $f = fopen($file,"r");
 
     $row = array();
@@ -257,6 +257,35 @@ function basin($map,$point,&$marks){
     
 }
 
+function searchMark($mark,$marks){
+    for ($i=0; $i < count($marks); $i++) { 
+        if(in_array($mark,$marks))
+            return true;
+    }
+    return false;
+}
+
+function printMap($map,$marks){
+    $file = dirname($_SERVER["SCRIPT_FILENAME"])."\\output.html";
+    $f = fopen($file,"w");
+
+    // print_r($marks);
+    
+    for ($y=0; $y < count($map); $y++) { 
+        $cad = '';
+        for ($x=0; $x < count($map[$y]); $x++) { 
+            // if(in_array(array("x"=>$x,"y"=>$y),$marks))
+            if(searchMark(array("x"=>$x,"y"=>$y),$marks))
+                $cad .= "<span style='color: blue;'>".$map[$y][$x]."</span>";
+            else
+                $cad .= $map[$y][$x];
+        }
+        $cad .= "<BR>";
+        fputs($f,$cad);
+    }
+    fclose($f);
+}
+
 function calculate_part1($map){
     $result = searchMin4Points($map);
     // print_r($result);
@@ -271,6 +300,7 @@ function calculate_part1($map){
 
 function calculate_part2($map){
     $result = searchMin4Points($map);
+    $all_marks = array();
     // print_r($result);
     $array_max = array();
     foreach($result as $res => $value){
@@ -279,6 +309,7 @@ function calculate_part2($map){
         basin($map,$value,$marks);
         // print_r($marks);
         array_push($array_max,count($marks));
+        array_push($all_marks,$marks);
     }
     
     // print_r($array_max);
@@ -310,6 +341,9 @@ function calculate_part2($map){
     echo "PART 2"."\r\n";
     echo "---------------------------------------"."\r\n";
     echo "TOTAL (".implode("x",$final).") = ".$total."\r\n";
+
+    //extra, is pretty funny
+    printMap($map,$all_marks);
 }
 
 
