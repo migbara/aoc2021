@@ -5,7 +5,7 @@
 
 function getData(){
     //1 - Read from a file
-    $file = dirname($_SERVER["SCRIPT_FILENAME"])."\\input2.txt";
+    $file = dirname($_SERVER["SCRIPT_FILENAME"])."\\input.txt";
     $f = fopen($file,"r");
 
     $row = array();
@@ -69,57 +69,63 @@ function findPaths($data,$y,$x,&$paths,$points=0,$v=array()){
 //new idea, simply fill each point with the minimum effort to get it
 // the right botton corener will have the minimum effort
 function fillMap($v,$map){
+    $cont = 0;
+    // $max = 0;
     $v[0][0] = 0;
-    for ($i=0; $i < count($map); $i++) { 
-        for ($j=0; $j < count($map[$i]); $j++) { 
-            //right
-            if($j<(count($map[$i])-1) && ($v[$i][$j+1] > $v[$i][$j] + $map[$i][$j+1])){
-                $v[$i][$j+1] = $v[$i][$j] + $map[$i][$j+1];
-            }
-            //left
-            if($j>0 && ($v[$i][$j-1] > $v[$i][$j] + $map[$i][$j-1])){
-                $v[$i][$j-1] = $v[$i][$j] + $map[$i][$j-1];
-            }
-            //up
-            if($i>0 && ($v[$i-1][$j] > $v[$i][$j] + $map[$i-1][$j])){
-                $v[$i-1][$j] = $v[$i][$j] + $map[$i-1][$j];
-            }
-            //down
-            if($i<(count($map)-1) && ($v[$i+1][$j] > $v[$i][$j] + $map[$i+1][$j])){
-                $v[$i+1][$j] = $v[$i][$j] + $map[$i+1][$j];
-            }
+
+    $points = array(array("x"=>0,"y"=>0)); 
+
+    while(count($points)>0){
+        $point = array_shift($points);
+        $y = $point['y'];
+        $x = $point['x'];
+ 
+        //up
+        if($y>0 && ($v[$y-1][$x] > $v[$y][$x] + $map[$y-1][$x])){
+            $v[$y-1][$x] = $v[$y][$x] + $map[$y-1][$x];
+            // if(!in_array(["x"=>$x,"y"=>$y-1],$points))
+                $points[] = ["x"=>$x,"y"=>$y-1];
         }
+        //down
+        if($y<(count($map)-1) && ($v[$y+1][$x] > $v[$y][$x] + $map[$y+1][$x])){
+            $v[$y+1][$x] = $v[$y][$x] + $map[$y+1][$x];
+            // if(!in_array(["x"=>$x,"y"=>$y+1],$points))
+                $points[] = ["x"=>$x,"y"=>$y+1];
+        }
+        //left
+        if($x>0 && ($v[$y][$x-1] > $v[$y][$x] + $map[$y][$x-1])){
+            $v[$y][$x-1] = $v[$y][$x] + $map[$y][$x-1];
+            // if(!in_array(["x"=>$x-1,"y"=>$y],$points))
+                $points[] = ["x"=>$x-1,"y"=>$y];
+        }
+        //right
+        if($x<(count($map[0])-1) && ($v[$y][$x+1] > $v[$y][$x] + $map[$y][$x+1])){
+            $v[$y][$x+1] = $v[$y][$x] + $map[$y][$x+1];
+            // if(!in_array(["x"=>$x+1,"y"=>$y],$points))
+                $points[] = ["x"=>$x+1,"y"=>$y];
+        }
+        
+        
+        $cont++;
+
+        // if(count($points)>$max)
+        //     $max = count($points);
+
     }
 
-    // print_r($v);
+    // echo "PUNTOS PROCESADOS METODO fillMap ".$cont."\r\n";
+    // echo "MAX POINTS ".$max."\r\n";
+
+    // printMap($v,8);
 
     return $v[count($map)-1][count($map[0])-1];
 }
 
 
-
-function calculate_part1($data){
-    
-    $v = $data["map"];
-
-    for ($i=0; $i < count($v); $i++) { 
-        for ($j=0; $j < count($v[$i]); $j++) { 
-            $v[$i][$j] = PHP_INT_MAX;
-        }
-    }
-
-    $n = fillMap($v,$data["map"]);
-
-
-    echo "PART 1"."\r\n";
-    echo "---------------------------------------"."\r\n";
-    echo "MINIMUM PATH VALUE ".$n."\r\n";
-}
-
-function changeMap($data){
+function changeMap($data,$steps){
     $map = $data["map"];
 
-    for ($k=1; $k < 3; $k++) { 
+    for ($k=1; $k <= $steps; $k++) { 
 
         $maxi = count($data["map"]);
         
@@ -129,8 +135,8 @@ function changeMap($data){
             
             for ($j=0; $j < $maxj; $j++) { 
                 $map[$i + ($maxi*$k)][$j] = $map[$i][$j] + $k;
-                if($map[$i + ($maxi*$k)][$j] == 10)
-                    $map[$i + ($maxi*$k)][$j] = 1;
+                if($map[$i + ($maxi*$k)][$j] >= 10)
+                    $map[$i + ($maxi*$k)][$j] -= 9;
             }
         }
 
@@ -138,7 +144,7 @@ function changeMap($data){
 
     $maxj = count($map[0]);
 
-    for ($k=1; $k < 3; $k++) { 
+    for ($k=1; $k <= $steps; $k++) { 
 
         //$maxi = count($map);
 
@@ -151,8 +157,8 @@ function changeMap($data){
             for ($j=0; $j < $maxj; $j++) { 
                 //if($i>$maxi){
                     $map[$i][($j + ($maxj*$k))] = $map[$i][$j] + $k;
-                    if($map[$i][($j + ($maxj*$k))] == 10)
-                        $map[$i][($j + ($maxj*$k))] = 1;
+                    if($map[$i][($j + ($maxj*$k))] >= 10)
+                        $map[$i][($j + ($maxj*$k))] -= 9;
                 // }
                 // else{
                 //     $map[$i][$j + $maxj*$k] = $map[$i][$j];
@@ -165,22 +171,45 @@ function changeMap($data){
     return $map;
 }
 
-function printMap($map){
-    for ($i=0; $i < count($map); $i++) { 
+function printMap($map,$pos){
+    for ($i=0; $i < count($map); $i++) {
+        $line = ''; 
         for ($j=0; $j < count($map[$i]); $j++) { 
-            echo $map[$i][$j];
+            $line .= sprintf("%".$pos."s",$map[$i][$j]);
         }
-        echo "\r\n";
+        $line .= "\r\n";
+        echo $line;
     }
+}
+
+function calculate_part1($data){
+    
+    $t1 = microtime(true);
+    $v = $data["map"];
+
+    for ($i=0; $i < count($v); $i++) { 
+        for ($j=0; $j < count($v[$i]); $j++) { 
+            $v[$i][$j] = PHP_INT_MAX;
+        }
+    }
+
+    $n = fillMap($v,$data["map"]);
+
+    $t2 = microtime(true);
+    echo "PART 1"."\r\n";
+    echo "TIME TO PROCESS ".($t2 - $t1)." s"."\r\n";
+    echo "---------------------------------------"."\r\n";
+    echo "MINIMUM PATH VALUE ".$n."\r\n";
 }
 
 function calculate_part2($data){
 
-    $data["map"] = changeMap($data);
+    $t1 = microtime(true);
+    $data["map"] = changeMap($data,4);
 
     // print_r($data["map"]);
 
-    printMap($data["map"]);
+    // printMap($data["map"],8);
     
     $v = $data["map"];
 
@@ -192,8 +221,10 @@ function calculate_part2($data){
 
     $n = fillMap($v,$data["map"]);
 
+    $t2 = microtime(true);
 
     echo "PART 2"."\r\n";
+    echo "TIME TO PROCESS ".($t2 - $t1)." s"."\r\n";
     echo "---------------------------------------"."\r\n";
     echo "MINIMUM PATH VALUE ".$n."\r\n";
 }
